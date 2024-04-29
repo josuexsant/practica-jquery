@@ -37,6 +37,7 @@ function getNombre() {
     $("#playButton").prop("disabled", false);
   }
 }
+
 function play() {
   console.log("Se ha iniciado el juego");
 
@@ -51,9 +52,11 @@ function play() {
     url: "./php/gananciaAleatoria.php",
     type: "POST",
     data: xmlData,
-    dataType: "json", // Esperamos un JSON como respuesta
+    dataType: "xml", // Esperamos un XML como respuesta
     success: function (response) {
-      $("#maxValue").text("Ganancia máxima: " + response.mensaje);
+      var xmlString = new XMLSerializer().serializeToString(response);
+      var gananciaMaxima = $(response).find('ganancia').text();
+      $("#maxValue").text("Ganancia máxima: " + gananciaMaxima);
       $("#maxValue").css("visibility", "visible");
       $("#playButton").prop("disabled", false);
       $("#cargando").css("visibility", "hidden");
@@ -70,6 +73,11 @@ function play() {
   $("#playButton").prop("disabled", true);
   $("#cargando").css("visibility", "visible");
 }
+
+$(function () {
+  initEvents();
+});
+
 
 $(function () {
   initEvents();
