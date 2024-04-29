@@ -1,67 +1,42 @@
-var xmlHttp = crearXMLHttpRequest();
 var nombre = "";
 var apellido = "";
 
-function addEvent(elemento, nomevento, funcion, captura) {
-  if (elemento.attachEvent) {
-    elemento.attachEvent("on" + nomevento, funcion);
-    return true;
-  } else if (elemento.addEventListener) {
-    elemento.addEventListener(nomevento, funcion, captura);
-    return true;
-  } else return false;
-}
-
-function crearXMLHttpRequest() {
-  var xmlHttp = null;
-  if (window.XMLHttpRequest) xmlHttp = new XMLHttpRequest();
-  else if (window.ActiveXObject)
-    xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
-
-  // Anti-caché: agregar un parámetro único a la URL
-  var timestamp = new Date().getTime();
-  if (xmlHttp) xmlHttp.timestamp = timestamp;
-
-  return xmlHttp;
-}
-
 function initEvents() {
   console.log("Se han iniciado los eventos");
-  var playButton = document.getElementById("playButton");
-  var nombreButton = document.getElementById("nombreButton");
-  playButton.disabled = true;
-  addEvent(playButton, "click", play, false);
-  addEvent(nombreButton, "click", getNombre, false);
+  var playButton = $("#playButton");
+  var nombreButton = $("#nombreButton");
+  playButton.prop("disabled", true);
+  playButton.on("click", play);
+  nombreButton.on("click", getNombre);
 }
 
 function getNombre() {
-  nombre = document.getElementById("nombre").value;
-  apellido = document.getElementById("apellido").value;
+  nombre = $("#nombre").val();
+  apellido = $("#apellido").val();
   console.log("Se ha pulsado el botón de nombre");
 
-  var campoNombre = document.getElementById("nombre");
-  var campoApellido = document.getElementById("apellido");
+  var campoNombre = $("#nombre");
+  var campoApellido = $("#apellido");
 
   if (nombre == "" || apellido == "") {
     if (nombre == "") {
-      campoNombre.style.borderColor = "red";
+      campoNombre.css("borderColor", "red");
     } else {
-      campoNombre.style.borderColor = "";
+      campoNombre.css("borderColor", "");
     }
     if (apellido == "") {
-      campoApellido.style.borderColor = "red";
+      campoApellido.css("borderColor", "red");
     } else {
-      campoApellido.style.borderColor = "";
+      campoApellido.css("borderColor", "");
     }
     alert("Introduce un nombre y un apellido");
   } else {
     console.log("Nombre: " + nombre);
-    campoNombre.style.borderColor = "";
-    campoApellido.style.borderColor = "";
-    playButton.disabled = false;
+    campoNombre.css("borderColor", "");
+    campoApellido.css("borderColor", "");
+    $("#playButton").prop("disabled", false);
   }
 }
-
 function play() {
   console.log("Se ha iniciado el juego");
 
@@ -71,47 +46,31 @@ function play() {
     "</nombre><apellido>" +
     apellido +
     "</apellido></data>";
-  xmlHttp.open(
-    "POST",
-    "./php/gananciaAleatoria.php?timestamp=" + xmlHttp.timestamp,
-    true
-  );
 
-  xmlHttp.onreadystatechange = function () {
-    if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-      document.getElementById("maxValue").innerHTML =
-        "Ganancia máxima: " + xmlHttp.responseText;
-      document.getElementById("maxValue").style.visibility = "visible";
-      document.getElementById("playButton").disabled = false;
-      document.getElementById("cargando").style.visibility = "hidden";
-    } else if (xmlHttp.status != 200 && xmlHttp.status != 0) {
-      document.getElementById("maxValue").innerHTML =
-        "ERROR: " + xmlHttp.status;
-      document.getElementById("maxValue").style.visibility = "visible";
-      document.getElementById("playButton").disabled = false;
-      document.getElementById("cargando").style.visibility = "hidden";
-    }
-  };
-  document.getElementById("maxValue").style.visibility = "hidden";
+  $.ajax({
+    url: "./php/gananciaAleatoria.php",
+    type: "POST",
+    data: xmlData,
+    dataType: "json", // Esperamos un JSON como respuesta
+    success: function (response) {
+      $("#maxValue").text("Ganancia máxima: " + response.mensaje);
+      $("#maxValue").css("visibility", "visible");
+      $("#playButton").prop("disabled", false);
+      $("#cargando").css("visibility", "hidden");
+    },
+    error: function (xhr, status, error) {
+      $("#maxValue").text("ERROR: " + xhr.status);
+      $("#maxValue").css("visibility", "visible");
+      $("#playButton").prop("disabled", false);
+      $("#cargando").css("visibility", "hidden");
+    },
+  });
 
-  document.getElementById("playButton").disabled = true;
-  document.getElementById("cargando").style.visibility = "visible";
-  xmlHttp.send(xmlData);
+  $("#maxValue").css("visibility", "hidden");
+  $("#playButton").prop("disabled", true);
+  $("#cargando").css("visibility", "visible");
 }
 
-function crearXMLHttpRequest() {
-  var xmlHttp = null;
-  if (window.ActiveXObject) xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
-  else if (window.XMLHttpRequest) xmlHttp = new XMLHttpRequest();
-  return xmlHttp;
-}
-
-function addEvent(element, eventName, callback, useCapture) {
-  if (element.addEventListener) {
-    element.addEventListener(eventName, callback, useCapture);
-  } else if (element.attachEvent) {
-    element.attachEvent("on" + eventName, callback);
-  }
-}
-
-addEvent(window, "load", initEvents, false);
+$(function () {
+  initEvents();
+});
