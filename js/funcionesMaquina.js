@@ -2,21 +2,6 @@ var xmlHttp = crearXMLHttpRequest();
 var nombre = "";
 var apellido = "";
 
-function preseleccionarJugador1() {
-  // Crear árbol DOM pre-configurado para el jugador 1
-  nombre = "Jugador";
-  apellido = "Uno";
-  document.getElementById("nombre").value = nombre;
-  document.getElementById("apellido").value = apellido;
-}
-
-function preseleccionarJugador2() {
-  // Crear árbol DOM pre-configurado para el jugador 2
-  nombre = "Jugador";
-  apellido = "Dos";
-  document.getElementById("nombre").value = nombre;
-  document.getElementById("apellido").value = apellido;
-}
 
 function initEvents() {
   console.log("Se han iniciado los eventos");
